@@ -30,13 +30,7 @@ int DisassemblerMain(struct disasm* disasm)
 #define DEF_CMD(name, num, arg, cod)                                                        \
 case CMD_##name:                                                                            \
     fprintf(out, "%s ", #name);                                                             \
-    if  (arg == 1)                                                                          \
-    {                                                                                       \
-        char argm[30] = {};                                                                 \
-        GetArg(disasm, cmd, argm);                                                          \
-        fprintf(out, "%s", argm);                                                           \
-    }                                                                                       \
-    if (arg == 2)                                                                           \
+    if (num <= 16 && num >= 10)                                                             \
     {                                                                                       \
         labels[labelcounter].labelbyte = *(int*)(disasm->code + disasm->ip + 1);            \
         labels[labelcounter].labelnum = labelcounter;                                       \
@@ -44,9 +38,15 @@ case CMD_##name:                                                                
         labelcounter += 1;                                                                  \
         disasm->ip += sizeof(int);                                                          \
     }                                                                                       \
+    else if  (arg == 1)                                                                     \
+    {                                                                                       \
+        char argm[30] = {};                                                                 \
+        GetArg(disasm, cmd, argm);                                                          \
+        fprintf(out, "%s", argm);                                                           \
+    }                                                                                       \
     fprintf(out, "\n");                                                                     \
     break;
-#include "C:\Users\USER\Documents\GitHub\Assembler\cmd.h"
+#include "..\Assembler\cmd.h"
 #undef DEF_CMD
             default:
                 printf("%c UNKNOWN COMMAND\n", *disasm->code);
@@ -115,8 +115,8 @@ int GetArg(struct disasm* disasm, char cmd, char arg[])
     }
     if (cmd & ARG_IMMED)
     {
-        sprintf(arg, "%d", *(int*)(disasm->code + disasm->ip + 1));
-        disasm->ip += sizeof(int);
+        sprintf(arg, "%lg", *(elem_t*)(disasm->code + disasm->ip + 1));
+        disasm->ip += sizeof(elem_t);
 
         if (cmd & ARG_REG)
         {
