@@ -30,13 +30,9 @@ int DisassemblerMain(struct disasm* disasm)
 #define DEF_CMD(name, num, arg, cod)                                                        \
 case CMD_##name:                                                                            \
     fprintf(out, "%s ", #name);                                                             \
-    if (num <= 16 && num >= 10)                                                             \
+    if (num <= 17 && num >= 10)                                                             \
     {                                                                                       \
-        labels[labelcounter].labelbyte = *(int*)(disasm->code + disasm->ip + 1);            \
-        labels[labelcounter].labelnum = labelcounter;                                       \
-        fprintf(out, ":%d", labelcounter);                                                  \
-        labelcounter += 1;                                                                  \
-        disasm->ip += sizeof(int);                                                          \
+        SetLabel(disasm, &labelcounter, out);                                               \
     }                                                                                       \
     else if  (arg == 1)                                                                     \
     {                                                                                       \
@@ -162,4 +158,30 @@ int GetReg(struct disasm* disasm, char reg[])
     }
 
     return NOERR;
+}
+
+int SetLabel(struct disasm* disasm, int* labelcounter, FILE* out)
+{
+    bool flag = true;
+    for (int i = 0; i < 10; i++)
+    {
+        if (*(int*)(disasm->code + disasm->ip + 1) == labels[i].labelbyte && labels[i].labelbyte != 0)
+        {
+            fprintf(out, ":%d", labels[i].labelnum);
+
+            *labelcounter += 1;
+            flag = false;
+            break;
+        }
+    }
+    if (flag)
+    {
+        fprintf(out, ":%d", *labelcounter);
+
+        labels[*labelcounter].labelbyte = *(int*)(disasm->code + disasm->ip + 1);
+        labels[*labelcounter].labelnum = *labelcounter;
+    }
+
+    *labelcounter += 1;
+    disasm->ip += sizeof(int);
 }

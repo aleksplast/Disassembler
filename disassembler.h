@@ -43,4 +43,6 @@ int GetArg(struct disasm* disasm, char cmd, char arg[]);
 
 int GetReg(struct disasm* disasm, char reg[]);
 
+int SetLabel(struct disasm* disasm, int* labelcounter, FILE* out);
+
 #endif //DISASSEMBLER_H
